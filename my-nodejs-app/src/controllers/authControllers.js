@@ -14,6 +14,17 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
+// Test DB connection ONCE when app starts
+(async () => {
+    try {
+        const connection = await pool.getConnection();
+        console.log("✅ The database is connected");
+        connection.release();
+    } catch (err) {
+        console.error("❌ Database connection failed:", err.message);
+    }
+})();
+
 
 // Handle login
 exports.loginAdmin = async (req, res) => {
@@ -54,7 +65,6 @@ exports.loginAdmin = async (req, res) => {
     if (user.role === 'cashier') {
       redirectTo = '/cashier/dashboard';
     }
-
     req.session.save(err => {
       if (err) console.error('Session save error:', err);
       return res.redirect(redirectTo);
