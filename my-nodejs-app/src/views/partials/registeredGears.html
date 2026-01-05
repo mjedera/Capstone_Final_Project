@@ -272,14 +272,22 @@
               <option value="26_50_watts">26–50 watts</option>
             </select>
           </label>
-
-
           <h4 class="section-title full-width">Payment</h4>
+
           <div class="col-md-4">
-            <label class="form-label">Renewal Fee (₱)</label>
-            <input type="text" id="renewal_fee" class="form-control" readonly>
+            <label class="form-label">Base Renewal Fee (₱)</label>
+            <input type="text" id="baseRenewalFee" class="form-control" readonly>
           </div>
 
+          <div class="col-md-4">
+            <label class="form-label">Penalty (₱)</label>
+            <input type="text" id="renewalPenalty" class="form-control" readonly>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Total Renewal Fee (₱)</label>
+            <input type="text" id="totalRenewalFee" class="form-control" readonly>
+          </div>
         </form>
       </div>
 

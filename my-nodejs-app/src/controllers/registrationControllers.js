@@ -1643,100 +1643,86 @@ exports.submitGearRenewal = async (req, res) => {
     tambuan_qty,
     accessories,
     old_total_fee,
-    new_total_fee,
+    new_total_fee, // base fee only
     old_expires_at,
     new_expires_at
   } = req.body;
 
   try {
-    // prevent duplicate pending renewals
+    // ❌ Prevent duplicate pending
     const [pending] = await pool.query(
-      `SELECT id FROM gear_renewals
-       WHERE gear_id = ? AND status = 'PENDING'`,
+      `SELECT id FROM gear_renewals WHERE gear_id = ? AND status = 'PENDING'`,
       [gear_id]
     );
+    if (pending.length) {
+      return res.status(400).json({ message: 'Pending renewal exists' });
+    }
 
-    if (pending.length > 0) {
-      return res.status(400).json({
-        message: 'This gear already has a pending renewal'
-      });
+    // ❌ Block apprehended gear
+    const [[gear]] = await pool.query(
+      `SELECT apprehension_status FROM fishing_gears WHERE id = ?`,
+      [gear_id]
+    );
+    if (!gear) return res.status(404).json({ message: 'Gear not found' });
+    if (gear.apprehension_status === 'Apprehended') {
+      return res.status(403).json({ message: 'Gear is apprehended' });
     }
 
     const today = new Date();
-  const expiry = new Date(g.expires_at);
+    const expiryDate = new Date(old_expires_at);
 
-  const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    // ❌ Block early renewal
+    const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    if (diffDays > 90) {
+      return res.status(400).json({
+        message: 'Renewal allowed only within 90 days before expiry'
+      });
+    }
 
-  // ❌ Block early renewal
-  if (diffDays > 90) {
-    return res.status(400).json({
-      message: 'Renewal is only allowed within 90 days before expiry'
-    });
-  }
+    // ✅ MONTHLY PENALTY LOGIC
+    function calculateExpiredMonths(expiry, today = new Date()) {
+      if (today <= expiry) return 0;
+      const years = today.getFullYear() - expiry.getFullYear();
+      const months = today.getMonth() - expiry.getMonth();
+      let total = years * 12 + months;
+      if (today.getDate() > expiry.getDate()) total += 1;
+      return Math.max(total, 1);
+    }
 
-  // ❌ BLOCK renewal if gear is apprehended
-const [[gear]] = await pool.query(`
-  SELECT apprehension_status
-  FROM fishing_gears
-  WHERE id = ?
-`, [gear_id]);
+    const expiredMonths = calculateExpiredMonths(expiryDate);
+    const penaltyFee = expiredMonths * 30;
 
-if (!gear) {
-  return res.status(404).json({ message: 'Gear not found' });
-}
+    const baseFee = Number(new_total_fee);
+    const finalTotalFee = baseFee + penaltyFee;
 
-if (gear.apprehension_status === 'Apprehended') {
-  return res.status(403).json({
-    message: 'Renewal not allowed while gear is under apprehension'
-  });
-}
-
-
+    // ✅ INSERT
     await pool.query(`
       INSERT INTO gear_renewals (
-        gear_id,
-        gear_no,
-        hand_instruments,
-        line_type,
-        nets,
-        palubog_nets,
-        bobo_small_qty,
-        bobo_large_qty,
-        tambuan_qty,
-        accessories,
-        old_total_fee,
-        new_total_fee,
-        old_expires_at,
-        new_expires_at,
-        status,
-        requested_at
-      ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', NOW())
+        gear_id, gear_no, hand_instruments, line_type, nets, palubog_nets,
+        bobo_small_qty, bobo_large_qty, tambuan_qty, accessories,
+        old_total_fee, base_fee, penalty_fee, new_total_fee,
+        old_expires_at, new_expires_at, status, requested_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', NOW())
     `, [
-      gear_id,
-      gear_no,
-      hand_instruments,
-      line_type,
-      nets,
-      palubog_nets,
-      bobo_small_qty,
-      bobo_large_qty,
-      tambuan_qty,
-      accessories,
-      old_total_fee,
-      new_total_fee,
-      old_expires_at,
-      new_expires_at
+      gear_id, gear_no, hand_instruments, line_type, nets, palubog_nets,
+      bobo_small_qty, bobo_large_qty, tambuan_qty, accessories,
+      old_total_fee, baseFee, penaltyFee, finalTotalFee,
+      old_expires_at, new_expires_at
     ]);
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      expired_months: expiredMonths,
+      penalty_fee: penaltyFee,
+      total_fee: finalTotalFee
+    });
 
   } catch (err) {
-    console.error('submitGearRenewal error:', err);
-    res.status(500).json({
-      message: 'Failed to submit gear renewal'
-    });
+    console.error(err);
+    res.status(500).json({ message: 'Failed to submit gear renewal' });
   }
 };
+
 // =======================================
 //  (cashier) pending vessel approval
 // =======================================
@@ -1769,7 +1755,7 @@ exports.getPendingRenewals = async (req, res) => {
         gr.gear_no,
         fg.owner_name,
         gr.old_total_fee AS base_fee,
-        0 AS penalty_fee,
+        gr.penalty_fee AS penalty_fee,
         gr.new_total_fee AS total_fee,
         gr.requested_at
       FROM gear_renewals gr

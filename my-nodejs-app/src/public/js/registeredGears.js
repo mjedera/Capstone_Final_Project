@@ -458,6 +458,9 @@ else {
     `/api/registration/registered-gears/${currentModalGearId}`
   );
   const g = await res.json();
+  const today = new Date();
+  const expiryDate = new Date(g.expires_at);
+
     // ✅ STORE ORIGINAL VALUES FOR RENEWAL
   currentGearTotalFee = Number(g.total_fee);
   currentGearExpiry = g.expires_at;
@@ -526,8 +529,23 @@ document.getElementById('pamawo').value =
   document.getElementById('tambuanQty').value = g.tambuan_qty || 0;
 
   document.getElementById('accessories').value = g.accessories || '';
-  document.getElementById('renewal_fee').value =
-    `₱${Number(g.total_fee).toFixed(2)}`;
+
+const expiredMonths = calculateExpiredMonths(expiryDate);
+const penaltyFee = expiredMonths * 30;
+
+const baseFee = Number(g.total_fee);
+const totalFee = baseFee + penaltyFee;
+
+document.getElementById('baseRenewalFee').value =
+  baseFee.toFixed(2);
+
+document.getElementById('renewalPenalty').value =
+  penaltyFee.toFixed(2);
+
+document.getElementById('totalRenewalFee').value =
+  totalFee.toFixed(2);
+
+
 
   modal.show();
   // =====================================
@@ -632,7 +650,11 @@ document.getElementById('submitRenewGear').onclick = async () => {
     accessories: accessories.value || null,
 
     old_total_fee: currentGearTotalFee,
-    new_total_fee: Number(renewal_fee.value.replace('₱', '').trim()),
+new_total_fee: Number(
+  document.getElementById('baseRenewalFee').value
+),
+
+
 
     old_expires_at: currentGearExpiry,
     new_expires_at: nextYearExpiry
@@ -646,6 +668,7 @@ document.getElementById('submitRenewGear').onclick = async () => {
 
     const data = await res.json();
     console.log('RENEW PAYLOAD:', payload); 
+
 
     if (!res.ok) {
       showMessage(data.message || 'Failed to submit gear renewal', 'error');
@@ -965,11 +988,32 @@ function calculateGearFee() {
   // ===============================
   // FINAL
   // ===============================
-  const feeInput =
-  document.getElementById('renewal_fee') ||
-  document.getElementById('registrationFee');
-  const saveBtn = document.getElementById('submitRenewGear');
+const baseInput = document.getElementById('baseRenewalFee');
+const penaltyInput = document.getElementById('renewalPenalty');
+const totalInput = document.getElementById('totalRenewalFee');
+const saveBtn = document.getElementById('submitRenewGear');
 
-  feeInput.value = total > 0 ? total.toFixed(2) : '';
-  saveBtn.disabled = total <= 0;
+baseInput.value = total.toFixed(2);
+penaltyInput.value = penaltyInput.value || '0.00';
+totalInput.value = (
+  Number(baseInput.value) + Number(penaltyInput.value)
+).toFixed(2);
+
+saveBtn.disabled = total <= 0;
+}
+
+function calculateExpiredMonths(expiryDate, today = new Date()) {
+  if (today <= expiryDate) return 0;
+
+  const years = today.getFullYear() - expiryDate.getFullYear();
+  const months = today.getMonth() - expiryDate.getMonth();
+
+  let totalMonths = years * 12 + months;
+
+  // partial month counts as full
+  if (today.getDate() > expiryDate.getDate()) {
+    totalMonths += 1;
+  }
+
+  return Math.max(totalMonths, 1);
 }
