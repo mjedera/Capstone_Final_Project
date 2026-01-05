@@ -96,28 +96,37 @@ window.initAccDashboard = function () {
         // Prepare chart data
         // --------------------
         const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const yearData = {};
+const yearData = {};
 
-        result.monthlyData.forEach(row => {
-            if (!yearData[row.year]) {
-                yearData[row.year] = Array(12).fill(0);
-            }
-            yearData[row.year][row.month - 1] = row.total;
-        });
+if (!result.monthlyData || result.monthlyData.length === 0) {
+  applicantsChart.data.datasets = [];
+  applicantsChart.update();
+  return;
+}
 
-        applicantsChart.data.labels = labels;
-        applicantsChart.data.datasets = Object.keys(yearData).map(year => {
-            const color = getRandomColor(0.6);
-            return {
-                label: year,
-                data: yearData[year],
-                backgroundColor: color,
-                borderColor: color.replace('0.6', '1'),
-                borderWidth: 1
-            };
-        });
+// ✅ BUILD DATA PER YEAR
+result.monthlyData.forEach(row => {
+  if (!yearData[row.year]) {
+    yearData[row.year] = Array(12).fill(0);
+  }
+  yearData[row.year][row.month - 1] = row.total;
+});
 
-        applicantsChart.update();
+// ✅ APPLY TO CHART
+applicantsChart.data.labels = labels;
+applicantsChart.data.datasets = Object.keys(yearData).map(year => {
+  const color = getRandomColor(0.6);
+  return {
+    label: year,
+    data: yearData[year],
+    backgroundColor: color,
+    borderColor: color.replace('0.6', '1'),
+    borderWidth: 1
+  };
+});
+
+applicantsChart.update();
+
     }
     const map = document.getElementById('map');
     map.innerHTML = `
