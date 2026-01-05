@@ -31,6 +31,17 @@ const gearSection = document.getElementById('gearSection');
 
   const mfletCountInput = document.getElementById('mfletCount');
 
+  const saveBtn = document.getElementById('saveApprehensionBtn');
+const selectedViolationsInput = document.getElementById('selectedViolations');
+
+function updateSaveButtonState() {
+  const hasViolations =
+    selectedViolationsInput.value &&
+    selectedViolationsInput.value.trim().length > 0;
+
+  saveBtn.disabled = !hasViolations;
+}
+
   /* =====================================================
      HELPER FUNCTIONS
   ===================================================== */
@@ -437,11 +448,6 @@ document.getElementById('registeredGearNo').disabled = false;
       payload.mfletNames.push(input.value.trim());
     }
   });
-
-  console.log('SUBMIT PAYLOAD:', payload); // 🔍 DEBUG
-console.log('GEAR ID:', payload.selectedGearId);
-console.log('GEAR NO:', payload.registeredGearNo);
-
   const res = await apiFetch('/api/apprehensionRprtRoutes/ApprehensionReport', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -451,7 +457,7 @@ console.log('GEAR NO:', payload.registeredGearNo);
   const data = await res.json();
 
   if (res.ok) {  
-    showSuccessToast(data.message);
+    showMessage("Apprehension Report saved successfully",'success');
     clearApprehensionForm(form);
     formContainer.innerHTML = '';
     // 🔔 Notify parent page that form was closed
@@ -471,6 +477,11 @@ function clearApprehensionForm(form) {
   // Clear violator number
   const violatorNoInput = document.getElementById('violatorNo');
   if (violatorNoInput) violatorNoInput.value = '';
+
+  document.getElementById('selectedViolations').value = '';
+document.getElementById('selectedOrdinanceIds').value = '';
+document.getElementById('penaltyDetails').value = '';
+updateSaveButtonState(); // 🔒 DISABLE SAVE AGAIN
 
   // Re-apply visibility logic
   toggleVesselSection();
@@ -822,7 +833,7 @@ document
         style: 'currency',
         currency: 'PHP'
       });
-
+    updateSaveButtonState();
     modal.hide();
   });
 
