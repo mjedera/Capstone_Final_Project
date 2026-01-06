@@ -42,6 +42,12 @@ router.get('/partials/apprehensionReport', authMiddleware('cashier'), (req, res)
     path.join(__dirname, '../views/mto/apprehendedFisherFolk.html')
   );  
 });
+// recent transactions partial
+router.get('/partials/recent-transactions', authMiddleware('cashier'), (req, res) => {
+  res.sendFile(
+    path.join(__dirname, '../views/mto/receipts.html')
+  );  
+});
 // VESSEL RENEWALS
 router.get('/vessel-renewals', authMiddleware('cashier'), (req, res) => {
   res.sendFile(

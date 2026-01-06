@@ -57,3 +57,29 @@ exports.getActiveAnnouncements = async (req, res) => {
     res.status(500).json({ message: 'Failed to load announcements' });
   }
 };
+// ==================================
+// (user) transactions
+// ==================================
+exports.getUserTransactions = async (req, res) => {
+  try {
+    const applicantId = req.session.applicantId; // 🔐 from session
+
+    const [rows] = await pool.execute(`
+      SELECT 
+        id,
+        reference_no,
+        transaction_type,
+        related_id,
+        created_at,
+        amount
+      FROM receipts
+      WHERE applicant_id = ?
+      ORDER BY created_at DESC
+    `, [applicantId]);
+
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to load user transactions" });
+  }
+};

@@ -206,6 +206,22 @@ document.addEventListener('DOMContentLoaded', async function () {
                 await loadDashboardGreeting();
             }
         },
+        getRecentTransactions: {
+            title: 'Transactions',
+            action: async () => {
+                hideGreeting();
+                
+                const response = await fetch('/partials/userTransactions.html');
+                const applicantHtml = await response.text();
+                unsettled.innerHTML = '';
+                dashboardAnnouncements.innerHTML = '';
+                container.innerHTML = applicantHtml;
+
+
+                // Load the user data AFTER content is injected
+                if (window.loadUserProfile) window.loadUserTransactions();
+            }
+        },
         getProfile: {
             title: 'Profile',
             action: async () => {

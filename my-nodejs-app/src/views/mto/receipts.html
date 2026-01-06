@@ -1,35 +1,41 @@
 <div class="card-table">
     <div class="table-header column">
         <div class="header-row">
-            <h3>Pending Vessel / Gear Renewals</h3>
+            <h3>Recent Transactions</h3>
         </div>
 
         <!-- Search + Filter Row -->
         <div class="search-filter-row below-title">
           <!-- Search -->
-          <div class="search-wrapper">
+          <div class="search-wrapper" style="min-width: 300px;">
             <span class="search-icon material-icons">search</span>
             <input
               type="text"
-              id="cashierRenewalSearch"
+              id="cashierRecentTransactions"
               class="form-control search-input"
-              placeholder="Search vessel or owner..."
+              placeholder="Search transaction type"
             />
           </div>
 
           <!-- Dropdown -->
-          <div class="status-dropdown" id="gearVesselRenewal">
+          <div class="status-dropdown" id="gearReceipts">
             <button type="button" class="dropdown-toggle">
               <span id="statusLabel">ALL</span>
             </button>
             <ul class="dropdown-menu">
               <li data-value="ALL">ALL</li>
-              <li data-value="GEARS">GEARS</li>
-              <li data-value="VESSELS">VESSELS</li>
+              <li data-value="VESSEL_REGISTRATION">VESSEL_REGISTRATION</li>
+              <li data-value="GEAR_REGISTRATION">GEAR REGISTRATION</li>
+              <li data-value="VESSEL_RENEWAL">VESSEL RENEWAL</li>
+              <li data-value="GEAR_RENEWAL">GEAR RENEWAL</li>
+              <li data-value="VESSEL_MODIFICATION">VESSEL MODIFICATION</li>
+              <li data-value="APPREHENSION_RELEASE">APPREHENSION RELEASE</li>
             </ul>
           </div>
+        <button class="btn btn-primary" id="printSelectedReceipts" style="margin-left: auto;font-family: monospace;">
+            <i class="fas fa-print"></i> Print
+        </button>
         </div>
-
     </div>
 
 
@@ -37,18 +43,19 @@
     <table class="table table-sm table-hover ">
       <thead>
         <tr style="background-color: hsl(0, 0%, 95%);">
-          <th style="min-width: 150px;">Vessel / Gear No</th>
-          <th>Owner</th>
-          <th class="text-end">Base Fee</th>
-          <th class="text-end">Penalty</th>
-          <th class="text-end">Total</th>
-          <th class="text-center">Action</th>
+            <th class="text-center">
+                <input type="checkbox" id="receipt-checkbox">
+            </th>
+            <th style="min-width: 150px;">Reference No</th>
+            <th>Transaction Type</th>
+            <th >Date</th>
+            <th class="text-end">Amount</th>
         </tr>
       </thead>
       <tbody id="cashierRenewalsBody">
         <tr>
-          <td colspan="6" class="text-center text-muted">
-            Loading renewals...
+          <td colspan="5" class="text-center text-muted" >
+            Loading recent transactions...
           </td>
         </tr>
       </tbody>

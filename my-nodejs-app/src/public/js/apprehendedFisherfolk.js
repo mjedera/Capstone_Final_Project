@@ -49,7 +49,7 @@ window.initApprehendedFisherfolks = async function () {
             <td>${new Date(r.apprehension_date).toLocaleDateString()}</td>
             <td>${r.vessel_type || '—'}</td>
             <td>${gearText}</td>
-            <td>${r.penalty_details || '—'}</td>
+            <td>${r.penalty_details  || '—'}</td>
             <td class="text-end">
             <button
                 class="btn btn-sm btn-success me-1"

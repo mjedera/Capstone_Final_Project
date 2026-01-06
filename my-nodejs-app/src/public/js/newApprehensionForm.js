@@ -829,10 +829,7 @@ document
       ids.join(',');
 
     document.getElementById('penaltyDetails').value =
-      totalPenalty.toLocaleString('en-PH', {
-        style: 'currency',
-        currency: 'PHP'
-      });
+      totalPenalty;
     updateSaveButtonState();
     modal.hide();
   });

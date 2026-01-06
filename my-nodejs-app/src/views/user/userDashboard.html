@@ -10,12 +10,25 @@
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/userProfile.css">
     <link rel="stylesheet" href="/css/applicantTable.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
     
 </head>
 <body>
     <div id="sidebarOverlay"></div>
     <div id="messageBox" class="message-box"></div>
+    <div id="confirmDeleteModal" class="confirm-modal">
+        <div class="confirm-box">
+            <h5 id="confirmTitle">Confirm Action</h5>
+            <p id="confirmMessage"></p>
+
+            <div class="confirm-actions">
+            <button id="confirmCancelBtn" class="btn btn-secondary">Cancel</button>
+            <button id="confirmOkBtn" class="btn btn-danger">Yes, Close</button>
+            </div>
+        </div>
+    </div>
 
     <nav id="sidebar">
         <div class="sidebar-header">
@@ -36,6 +49,12 @@
                     <i class="fas fa-award"></i>
                     <span class="nav-text">Digital ID</span>
                 </a>
+                <li>
+                    <a href="#" id="getRecentTransactions">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="nav-text">Transactions</span>
+                    </a>
+                </li>
                 
                 <li>
                     <a href="#" id="getSettings">
@@ -86,5 +105,6 @@
     <script src="/js/userDashboard.js"></script>
     <script src="/js/userProfile.js"></script>
     <script src="/js/userSettings.js"></script>
+    <script src="/js/userTransactions.js"></script>
 
 </html>

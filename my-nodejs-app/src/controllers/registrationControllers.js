@@ -408,6 +408,7 @@ exports.getApprehendedFisherfolks = async (req, res) => {
         ar.vessel_type,
         ar.violation_type,
         ar.penalty_details,
+        ar.no_of_days,
         (
           (COALESCE(arg.hand_instruments, '') != '') +
           (COALESCE(arg.fishing_lines, '') != '') +
@@ -448,6 +449,7 @@ exports.approveApprehension = async (req, res) => {
       SELECT
         ar.id,
         ar.status,
+        ar.penalty_details,
         fv.applicant_id
       FROM apprehension_reports ar
       LEFT JOIN apprehension_reports_vessels arv
@@ -457,6 +459,8 @@ exports.approveApprehension = async (req, res) => {
       WHERE ar.id = ?
       FOR UPDATE
     `, [apprehensionId]);
+
+    const amount = app.penalty_details;
 
     if (!app || app.status !== 'APPREHENDED') {
       await conn.rollback();
@@ -491,6 +495,7 @@ exports.approveApprehension = async (req, res) => {
     `, [apprehensionId]);
 
     // 5️⃣ Create receipt ✅ (FIXED)
+
     await conn.query(`
       INSERT INTO receipts (
         reference_no,
@@ -500,10 +505,11 @@ exports.approveApprehension = async (req, res) => {
         cashier_id,
         applicant_id
       )
-      VALUES (?, 'APPREHENSION_RELEASE', ?, 0, ?, ?)
+      VALUES (?, 'APPREHENSION_RELEASE', ?, ?, ?, ?)
     `, [
       `AR-${Date.now()}`,
       apprehensionId,
+      amount,
       cashierId,
       app.applicant_id
     ]);
@@ -780,7 +786,8 @@ exports.getRegistrationDashboard = async (req, res) => {
         MONTH(registered_at) AS month,
         COUNT(*) AS total
       FROM fishing_vessels
-      WHERE YEAR(registered_at) BETWEEN ? AND ?
+      WHERE status!='PENDING'
+      AND YEAR(registered_at) BETWEEN ? AND ?
       GROUP BY YEAR(registered_at), MONTH(registered_at)
       ORDER BY year, month
     `, [fromYear, toYear]);
@@ -1633,6 +1640,7 @@ exports.submitVesselRenewal = async (req, res) => {
 exports.submitGearRenewal = async (req, res) => {
   const {
     gear_id,
+    owner_name,
     gear_no,
     hand_instruments,
     line_type,
@@ -1698,13 +1706,13 @@ exports.submitGearRenewal = async (req, res) => {
     // ✅ INSERT
     await pool.query(`
       INSERT INTO gear_renewals (
-        gear_id, gear_no, hand_instruments, line_type, nets, palubog_nets,
+        gear_id,owner_name, gear_no, hand_instruments, line_type, nets, palubog_nets,
         bobo_small_qty, bobo_large_qty, tambuan_qty, accessories,
         old_total_fee, base_fee, penalty_fee, new_total_fee,
         old_expires_at, new_expires_at, status, requested_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', NOW())
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', NOW())
     `, [
-      gear_id, gear_no, hand_instruments, line_type, nets, palubog_nets,
+      gear_id,owner_name ,gear_no, hand_instruments, line_type, nets, palubog_nets,
       bobo_small_qty, bobo_large_qty, tambuan_qty, accessories,
       old_total_fee, baseFee, penaltyFee, finalTotalFee,
       old_expires_at, new_expires_at
@@ -1825,7 +1833,7 @@ exports.approveVesselRenewal = async (req, res) => {
       )
       VALUES (?, 'VESSEL_RENEWAL', ?, ?, ?, ?)
     `, [
-      `VR-${Date.now()}`,
+      `VRN-${Date.now()}`,
       renewalId,
       renewal.total_fee,
       cashierId,
@@ -2187,6 +2195,131 @@ async function hasPendingVesselModification(vesselId) {
 
   return rows.length > 0;
 }
+// ==================================
+// (cashier) recent transaction
+// ==================================
+exports.getRecentTransactions = async (req, res) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT 
+        id,
+        reference_no,
+        transaction_type,
+        related_id,
+        created_at,
+        amount
+      FROM receipts
+      ORDER BY created_at DESC
+      LIMIT 10
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to load transactions" });
+  }
+};
+exports.getReceiptDetails = async (req, res) => {
+  const { type, relatedId } = req.query;
+
+  try {
+    let query = '';
+    let params = [relatedId];
+
+    switch (type) {
+
+      // ----------------------------
+      // VESSEL REGISTRATION
+      // related_id → fishing_vessels.id
+      // ----------------------------
+      case 'VESSEL_REGISTRATION':
+        query = `
+          SELECT
+              *
+          FROM fishing_vessels
+          WHERE id = ?
+        `;
+        break;
+
+      // ----------------------------
+      // VESSEL RENEWAL
+      // related_id → vessel_modifications.id
+      // ----------------------------
+      case 'VESSEL_RENEWAL':
+        query = `
+          SELECT
+            fv.*
+          FROM vessel_renewals vr
+          JOIN fishing_vessels fv ON fv.id = vr.vessel_id
+          WHERE vr.id = ?
+        `;
+        break;
+      // ----------------------------
+      // GEAR REGISTRATION
+      // ----------------------------
+      case 'GEAR_REGISTRATION':
+        query = `
+          SELECT *
+          FROM fishing_gears
+          WHERE id = ?
+        `;
+        break;
+
+      // ----------------------------
+      // GEAR RENEWAL
+      // ----------------------------
+      case 'GEAR_RENEWAL':
+        query = `
+          SELECT *
+          FROM gear_renewals
+          WHERE id = ?
+        `;
+        break;
+
+      // ----------------------------
+      // VESSEL MODIFICATION (DETAILS ONLY)
+      // ----------------------------
+case 'VESSEL_MODIFICATION':
+  query = `
+    SELECT
+      vm.*,
+      fv.vessel_no,
+      fv.vessel_name,
+      fv.owner_name,
+      fv.owner_address,
+      fv.home_port
+    FROM vessel_modifications vm
+    JOIN fishing_vessels fv ON fv.id = vm.vessel_id
+    WHERE vm.id = ?
+  `;
+  break;
+
+
+
+      // ----------------------------
+      // APPREHENSION RELEASE
+      // ----------------------------
+      case 'APPREHENSION_RELEASE':
+        query = `
+          SELECT full_name, address, place_of_apprehension, violation_type
+          FROM apprehension_reports
+          WHERE id = ?
+        `;
+        break;
+
+      default:
+        return res.status(400).json({ message: 'Invalid transaction type' });
+    }
+
+    const [rows] = await pool.execute(query, params);
+    res.json(rows[0] || null);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to load receipt details' });
+  }
+};
+
 
 
 

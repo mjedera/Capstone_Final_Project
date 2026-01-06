@@ -139,6 +139,18 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (!ok) return;   
                 window.initCashierVesselModifications?.();
             }
+        },
+        getRecentTransactions: {
+            title: 'Recent Transactions',
+            action: async () => {
+                const ok = await loadPartial(
+                    '/cashier/partials/recent-transactions',
+                    container
+                );
+
+                if (!ok) return;   
+                window.initCashierRecentTransactions?.();
+            }
         }
     };
 

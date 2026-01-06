@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const authMiddleware = require('../middleware/authMiddleware');
+const userAuth = require('../middleware/userAuth');
 // Import controller
 const {
   approveVesselRenewal,
@@ -16,7 +17,9 @@ const {
   rejectVesselModification,
   getApprehendedFisherfolks,
   approveApprehension,
-  rejectApprehension
+  rejectApprehension,
+  getRecentTransactions,
+  getReceiptDetails
 } = require('../controllers/registrationControllers');
 
 const { 
@@ -193,6 +196,9 @@ router.put('/gears/:id/status',authMiddleware('cashier'),updateGearStatus);
 router.get('/apprehended-fisherfolks',authMiddleware('cashier'), getApprehendedFisherfolks);
 router.post('/apprehensions/:id/approve', authMiddleware('cashier'),approveApprehension);
 router.post('/apprehensions/:id/reject', authMiddleware('cashier'),rejectApprehension);
+router.get('/recent-transactions', authMiddleware('cashier'),getRecentTransactions);
+router.get('/details',getReceiptDetails);
+
 
 // ========================================
 //  user - receipt 
