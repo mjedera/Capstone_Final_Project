@@ -2,18 +2,25 @@
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const mysql = require('mysql2/promise');
+const fs = require('fs');
 require('dotenv').config();
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: 'mysql-f8cc56-lacanojomari-c434.i.aivencloud.com',
+    port: 21964,
+    user: 'avnadmin',
+    password: 'AVNS_6iQqRqD1pZzKqlWcQc5',
+    database: 'defaultdb',
+    ssl: {
+      ca: fs.readFileSync('./ca.pem'),
+    },
+  
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
-});
+    queueLimit: 0,
+      
+  });
 // Test DB connection ONCE when app starts
 (async () => {
     try {

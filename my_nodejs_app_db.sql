@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `announcements`
 --
-
+   
 CREATE TABLE `announcements` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -36,7 +36,8 @@ CREATE TABLE `announcements` (
   `location` varchar(255) DEFAULT NULL,
   `created_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `status` enum('ACTIVE','CANCELLED','INACTIVE') DEFAULT 'ACTIVE'
+  `status` enum('ACTIVE','CANCELLED','INACTIVE') DEFAULT 'ACTIVE',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -69,7 +70,8 @@ CREATE TABLE `applicants` (
   `marital_status` enum('Single','Married','Widowed','Divorced') DEFAULT NULL,
   `applicant_type` enum('Regular','Senior Citizen','PWD','Other') DEFAULT NULL,
   `applicant_photo` varchar(255) DEFAULT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp()
+   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -110,7 +112,8 @@ CREATE TABLE `apprehension_reports` (
   `penalty_details` varchar(255) DEFAULT NULL,
   `no_of_days` varchar(250) DEFAULT NULL,
   `status` enum('RELEASED','APPREHENDED') NOT NULL DEFAULT 'APPREHENDED',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -145,7 +148,8 @@ CREATE TABLE `apprehension_reports_gears` (
   `accessories` varchar(150) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `gear_id` int(11) DEFAULT NULL,
-  `gear_no` varchar(255) DEFAULT NULL
+  `gear_no` varchar(255) DEFAULT NULL,
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -166,7 +170,8 @@ CREATE TABLE `apprehension_reports_mflet` (
   `id` int(11) NOT NULL,
   `apprehension_id` int(11) NOT NULL,
   `full_name` varchar(150) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -211,7 +216,8 @@ CREATE TABLE `apprehension_reports_vessels` (
   `cylinders` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `vessel_no` varchar(50) DEFAULT NULL,
-  `vessel_id` int(11) DEFAULT NULL
+  `vessel_id` int(11) DEFAULT NULL,
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -248,7 +254,8 @@ CREATE TABLE `bantay_dagat` (
   `marital_status` varchar(10) NOT NULL,
   `birthdate` date DEFAULT NULL,
   `address` text NOT NULL,
-  `bantay_dagat_photo` varchar(255) NOT NULL
+  `bantay_dagat_photo` varchar(255) NOT NULL,
+   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -276,7 +283,8 @@ CREATE TABLE `bantay_dagat_reports` (
   `report_title` varchar(255) NOT NULL,
   `report_description` text NOT NULL,
   `report_photo` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -310,7 +318,8 @@ CREATE TABLE `deleted_applicants_history` (
   `photo_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_by_user_id` varchar(255) DEFAULT NULL,
-  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -384,12 +393,13 @@ CREATE TABLE `fishing_gears` (
   `palubog_nets` varchar(255) DEFAULT NULL,
   `accessories` varchar(255) DEFAULT NULL,
   `total_fee` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `application_date` date NOT NULL DEFAULT current_timestamp(),
+  `application_date` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` enum('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
   `registered_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `expires_at` date DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `apprehension_status` enum('Clear','Apprehended','Released') DEFAULT 'Clear'
+  `apprehension_status` enum('Clear','Apprehended','Released') DEFAULT 'Clear',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -416,7 +426,8 @@ CREATE TABLE `fishing_gear_fees` (
   `fee` decimal(10,2) NOT NULL DEFAULT 0.00,
   `fee_type` enum('per_unit','flat','free') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -484,7 +495,8 @@ CREATE TABLE `fishing_vessels` (
   `status` enum('PENDING','APPROVED','REJECTED','EXPIRED') NOT NULL DEFAULT 'PENDING',
   `registered_at` date DEFAULT NULL,
   `expires_at` date NOT NULL,
-  `apprehension_status` enum('Clear','Apprehended','Released') DEFAULT 'Clear'
+  `apprehension_status` enum('Clear','Apprehended','Released') DEFAULT 'Clear',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -540,7 +552,8 @@ CREATE TABLE `gear_renewals` (
   `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `approved_at` timestamp NULL DEFAULT NULL,
   `approved_by` int(11) DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -559,7 +572,8 @@ INSERT INTO `gear_renewals` (`id`, `gear_id`, `gear_no`, `owner_name`, `hand_ins
 CREATE TABLE `logo` (
   `id` int(11) NOT NULL,
   `key_name` varchar(100) NOT NULL,
-  `value` varchar(255) NOT NULL
+  `value` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -581,7 +595,8 @@ CREATE TABLE `municipal_ordinances` (
   `ordinance_title` varchar(255) NOT NULL,
   `ordinance_description` text NOT NULL,
   `penalty_fee` decimal(10,2) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -607,7 +622,8 @@ CREATE TABLE `receipts` (
   `amount` decimal(10,2) NOT NULL,
   `cashier_id` int(11) NOT NULL,
   `applicant_id` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -640,7 +656,8 @@ CREATE TABLE `registration_fees` (
   `max_tonnage` decimal(5,2) NOT NULL,
   `fee` decimal(10,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -666,8 +683,10 @@ CREATE TABLE `users` (
   `last_name` varchar(255) NOT NULL,
   `middle_name` varchar(255) DEFAULT NULL,
   `extra_name` varchar(255) DEFAULT NULL,
-  `role` enum('admin','cashier','user') NOT NULL DEFAULT 'user'
+  `role` enum('admin','cashier','user') NOT NULL DEFAULT 'user',
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 --
 -- Dumping data for table `users`
@@ -707,7 +726,8 @@ CREATE TABLE `vessel_modifications` (
   `modification_fee` decimal(10,2) NOT NULL,
   `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `approved_at` timestamp NULL DEFAULT NULL,
-  `approved_by` int(11) DEFAULT NULL
+  `approved_by` int(11) DEFAULT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -737,7 +757,8 @@ CREATE TABLE `vessel_renewals` (
   `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `base_fee` decimal(10,2) DEFAULT NULL,
   `penalty_fee` decimal(10,2) DEFAULT NULL,
-  `total_fee` decimal(10,2) DEFAULT NULL
+  `total_fee` decimal(10,2) DEFAULT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -756,27 +777,19 @@ INSERT INTO `vessel_renewals` (`id`, `vessel_id`, `old_expiry`, `new_expiry`, `r
 --
 -- Indexes for table `announcements`
 --
-ALTER TABLE `announcements`
-  ADD PRIMARY KEY (`id`);
+
 
 --
 -- Indexes for table `applicants`
 --
 ALTER TABLE `applicants`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
 
---
--- Indexes for table `apprehension_reports`
---
-ALTER TABLE `apprehension_reports`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `apprehension_reports_gears`
 --
 ALTER TABLE `apprehension_reports_gears`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_apprep_gear_app` (`apprehension_id`),
   ADD KEY `idx_app_gear_id` (`gear_id`);
 
@@ -784,55 +797,39 @@ ALTER TABLE `apprehension_reports_gears`
 -- Indexes for table `apprehension_reports_mflet`
 --
 ALTER TABLE `apprehension_reports_mflet`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_apprehension_reports_mflet` (`apprehension_id`);
 
 --
 -- Indexes for table `apprehension_reports_vessels`
 --
 ALTER TABLE `apprehension_reports_vessels`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_apprep_vessel_app` (`apprehension_id`),
   ADD KEY `idx_app_vessel_id` (`vessel_id`);
 
---
--- Indexes for table `bantay_dagat`
---
-ALTER TABLE `bantay_dagat`
-  ADD PRIMARY KEY (`id`);
+
 
 --
 -- Indexes for table `bantay_dagat_reports`
 --
 ALTER TABLE `bantay_dagat_reports`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `bantay_dagat_id` (`bantay_dagat_id`);
 
---
--- Indexes for table `deleted_applicants_history`
---
-ALTER TABLE `deleted_applicants_history`
-  ADD PRIMARY KEY (`history_id`);
+
 
 --
 -- Indexes for table `fishing_gears`
 --
 ALTER TABLE `fishing_gears`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `gear_no` (`gear_no`),
   ADD KEY `idx_fishing_gears_applicant` (`applicant_id`);
 
---
--- Indexes for table `fishing_gear_fees`
---
-ALTER TABLE `fishing_gear_fees`
-  ADD PRIMARY KEY (`id`);
+
+
 
 --
 -- Indexes for table `fishing_vessels`
 --
 ALTER TABLE `fishing_vessels`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `vessel_no` (`vessel_no`),
   ADD KEY `fk_vessel_applicant` (`applicant_id`);
 
@@ -840,56 +837,38 @@ ALTER TABLE `fishing_vessels`
 -- Indexes for table `gear_renewals`
 --
 ALTER TABLE `gear_renewals`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `idx_gear_renewals_gear_id` (`gear_id`);
 
 --
 -- Indexes for table `logo`
 --
 ALTER TABLE `logo`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `key_name` (`key_name`);
 
---
--- Indexes for table `municipal_ordinances`
---
-ALTER TABLE `municipal_ordinances`
-  ADD PRIMARY KEY (`id`);
+
 
 --
 -- Indexes for table `receipts`
 --
 ALTER TABLE `receipts`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `reference_no` (`reference_no`),
   ADD KEY `cashier_id` (`cashier_id`),
   ADD KEY `applicant_id` (`applicant_id`);
 
---
--- Indexes for table `registration_fees`
---
-ALTER TABLE `registration_fees`
-  ADD PRIMARY KEY (`id`);
+
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
 -- Indexes for table `vessel_modifications`
 --
 ALTER TABLE `vessel_modifications`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `vessel_id` (`vessel_id`);
 
---
--- Indexes for table `vessel_renewals`
---
-ALTER TABLE `vessel_renewals`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
