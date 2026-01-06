@@ -155,13 +155,6 @@ applicantsChart.update();
                         <h5>Lewing Sanctuary</h5>
                     </div>
                     </div>
-
-                    <div class="carousel-item">
-                    <img src="/images/zoomed_out.jpg" class="d-block w-100 carousel-img" alt="Marine Sanctuary">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>Registered Fisherfolks</h5>
-                    </div>
-                    </div>
                 </div>
 
                 <!-- Controls -->
